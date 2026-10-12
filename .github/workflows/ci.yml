@@ -1,0 +1,11 @@
+name: Check Swift source
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  swift:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: mkdir -p build/ModuleCache
+      - run: xcrun swiftc -typecheck -sdk "$(xcrun --sdk iphoneos --show-sdk-path)" -target arm64-apple-ios17.0 -module-cache-path build/ModuleCache CollabMN/*.swift
