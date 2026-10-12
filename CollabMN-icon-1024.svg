@@ -1,0 +1,51 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bggrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0D0D1A"/>
+      <stop offset="100%" stop-color="#1A0A2E"/>
+    </linearGradient>
+    <linearGradient id="purplepink" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7C3AED"/>
+      <stop offset="100%" stop-color="#EC4899"/>
+    </linearGradient>
+    <linearGradient id="textgrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#A78BFA"/>
+      <stop offset="100%" stop-color="#EC4899"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="65%" cy="30%" r="40%">
+      <stop offset="0%" stop-color="#7C3AED" stop-opacity="0.22"/>
+      <stop offset="100%" stop-color="#7C3AED" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1024" height="1024" rx="210" fill="url(#bggrad)"/>
+
+  <!-- Glow -->
+  <rect width="1024" height="1024" rx="210" fill="url(#glow)"/>
+
+  <!-- Icon box -->
+  <rect x="330" y="228" width="364" height="364" rx="82" fill="url(#purplepink)"/>
+
+  <!-- 4-point star -->
+  <polygon points="512,268 526,368 626,382 526,396 512,496 498,396 398,382 498,368" fill="white" fill-opacity="0.95"/>
+
+  <!-- Accent dots -->
+  <circle cx="378" cy="266" r="10" fill="white" fill-opacity="0.55"/>
+  <circle cx="646" cy="266" r="7" fill="white" fill-opacity="0.45"/>
+  <circle cx="646" cy="556" r="10" fill="white" fill-opacity="0.55"/>
+  <circle cx="376" cy="554" r="7" fill="white" fill-opacity="0.4"/>
+
+  <!-- Collab -->
+  <text x="200" y="690" font-family="Georgia, serif" font-size="148" font-weight="700" fill="white" letter-spacing="-4">Collab</text>
+  <!-- .mn -->
+  <text x="737" y="690" font-family="Georgia, serif" font-size="148" font-weight="700" fill="url(#textgrad)" letter-spacing="-4">.mn</text>
+
+  <!-- Tagline -->
+  <text x="512" y="762" text-anchor="middle" font-family="Arial, sans-serif" font-size="40" fill="white" fill-opacity="0.38" letter-spacing="8">MARKETPLACE</text>
+
+  <!-- Badge -->
+  <rect x="362" y="832" width="300" height="76" rx="38" fill="#7C3AED" fill-opacity="0.22"/>
+  <rect x="362" y="832" width="300" height="76" rx="38" fill="none" stroke="#7C3AED" stroke-opacity="0.55" stroke-width="2"/>
+  <text x="512" y="882" text-anchor="middle" font-family="Arial, sans-serif" font-size="36" font-weight="600" fill="#A78BFA">🇲🇳  Монгол #1</text>
+</svg>
