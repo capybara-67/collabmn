@@ -39,8 +39,8 @@ struct InfluencerDashboardView: View {
                         // Stats
                         HStack(spacing: 12) {
                             DashboardStatCard(value: "\(dataStore.offers.count)", label: "Нийт санал", icon: "gift.fill", color: "#7C3AED")
-                            DashboardStatCard(value: "\(dataStore.applications.count)", label: "Хүсэлт", icon: "paperplane.fill", color: "#EC4899")
-                            DashboardStatCard(value: "\(dataStore.applications.filter { $0.status == .completed }.count)", label: "Дууссан", icon: "checkmark.seal.fill", color: "#10B981")
+                            DashboardStatCard(value: "\(dataStore.applications(forInfluencer: authManager.currentUser?.id).count)", label: "Хүсэлт", icon: "paperplane.fill", color: "#EC4899")
+                            DashboardStatCard(value: "\(dataStore.applications(forInfluencer: authManager.currentUser?.id).filter { $0.status == .completed }.count)", label: "Дууссан", icon: "checkmark.seal.fill", color: "#10B981")
                         }
                         .padding(.horizontal, 20)
                         
@@ -241,6 +241,7 @@ struct FilterChip: View {
 // MARK: - My Applications View
 struct MyApplicationsView: View {
     @EnvironmentObject var dataStore: DataStore
+    @EnvironmentObject var authManager: AuthManager
     
     var body: some View {
         NavigationView {
@@ -249,11 +250,11 @@ struct MyApplicationsView: View {
                 
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 16) {
-                        if dataStore.applications.isEmpty {
+                        if dataStore.applications(forInfluencer: authManager.currentUser?.id).isEmpty {
                             EmptyStateView(icon: "paperplane.fill", message: "Та одоогоор ямар нэгэн саналд хүсэлт гаргаагүй байна")
                                 .padding(.top, 80)
                         } else {
-                            ForEach(dataStore.applications) { app in
+                            ForEach(dataStore.applications(forInfluencer: authManager.currentUser?.id)) { app in
                                 ApplicationDetailCard(application: app)
                                     .padding(.horizontal, 20)
                             }

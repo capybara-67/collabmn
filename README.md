@@ -9,7 +9,8 @@ Open `CollabMN.xcodeproj` in Xcode, choose the `CollabMN` scheme, and run on an 
 ## What works
 
 - Browse sample offers and search by title, business, or category.
-- Create offers during the current run.
+- Create offers tied to the current business account during the current run.
+- Show each demo user their own offers, applications, and dashboard totals.
 - Submit an application using the current demo user's identity.
 - Reject duplicate applications, expired/inactive offers, and applications below the follower requirement.
 
@@ -19,4 +20,11 @@ Open `CollabMN.xcodeproj` in Xcode, choose the `CollabMN` scheme, and run on an 
 
 Login is a demo flow; it does not authenticate a real account. Data is kept in memory and resets when the app restarts. The shared sample marketplace is for demonstrating screens, not production authorization. The Expo marketplace project contains the separate Supabase implementation.
 
-Swift source was checked against the iOS SDK. A full Xcode build and simulator interaction still need verification on a machine with working simulator runtimes.
+The minimum deployment target is iOS 17. An unsigned device build passes in Xcode. CI checks offer ownership, application visibility, duplicate prevention, eligibility, and account identity across a demo logout/login, then builds the app. Simulator and real-device interactions remain unverified.
+
+```sh
+mkdir -p build
+swiftc CollabMN/Models.swift CollabMN/DataStore.swift tests/main.swift -o build/model-tests
+build/model-tests
+xcodebuild -project CollabMN.xcodeproj -scheme CollabMN -sdk iphoneos -destination 'generic/platform=iOS' -derivedDataPath build/DerivedData CODE_SIGNING_ALLOWED=NO build
+```

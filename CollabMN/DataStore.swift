@@ -1,28 +1,33 @@
 import Foundation
-import SwiftUI
 import Combine
 
 // MARK: - Auth Manager
 class AuthManager: ObservableObject {
+    private var demoUsers: [String: User] = [:]
     @Published var isLoggedIn: Bool = false
     @Published var currentUser: User?
     @Published var userRole: UserRole?
     
     func login(email: String, password: String, role: UserRole) {
         // Mock login - replace with Supabase auth
-        let user = User(
+        let key = role.rawValue + ":" + email.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        let user = demoUsers[key] ?? User(
             email: email,
             name: role == .business ? "Миний Бизнес" : "Миний Хэвлэл",
             role: role,
             location: "Улаанбаатар"
         )
+        demoUsers[key] = user
         self.currentUser = user
         self.userRole = role
         self.isLoggedIn = true
     }
     
     func register(email: String, password: String, name: String, role: UserRole) {
-        let user = User(email: email, name: name, role: role, location: "Улаанбаатар")
+        let key = role.rawValue + ":" + email.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        var user = demoUsers[key] ?? User(email: email, name: name, role: role, location: "Улаанбаатар")
+        user.name = name
+        demoUsers[key] = user
         self.currentUser = user
         self.userRole = role
         self.isLoggedIn = true
@@ -174,8 +179,30 @@ class DataStore: ObservableObject {
         ]
     }
     
-    func addOffer(_ offer: Offer) {
+    func offers(forBusiness id: UUID?) -> [Offer] {
+        offers.filter { $0.businessId == id }
+    }
+
+    func applications(forBusiness id: UUID?) -> [Application] {
+        let offerIds = Set(offers(forBusiness: id).map(\.id))
+        return applications.filter { offerIds.contains($0.offerId) }
+            .sorted { $0.createdAt > $1.createdAt }
+    }
+
+    func applications(forInfluencer id: UUID?) -> [Application] {
+        applications.filter { $0.influencerId == id }
+            .sorted { $0.createdAt > $1.createdAt }
+    }
+
+    func addOffer(_ offer: Offer, business: User) -> Bool {
+        guard business.role == .business, offer.businessId == business.id,
+              !offer.title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+              !offer.offerValue.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+              !offer.requiredContent.isEmpty, offer.deadline > Date(),
+              offer.minFollowers >= 0,
+              !offers.contains(where: { $0.id == offer.id }) else { return false }
         offers.insert(offer, at: 0)
+        return true
     }
     
     func applyToOffer(offerId: UUID, influencerId: UUID, name: String, handle: String, followers: Int, message: String) -> Bool {

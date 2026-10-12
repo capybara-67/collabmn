@@ -5,6 +5,9 @@ struct BusinessDashboardView: View {
     @EnvironmentObject var dataStore: DataStore
     @EnvironmentObject var authManager: AuthManager
     
+    private var ownedOffers: [Offer] { dataStore.offers(forBusiness: authManager.currentUser?.id) }
+    private var ownedApplications: [Application] { dataStore.applications(forBusiness: authManager.currentUser?.id) }
+
     var body: some View {
         NavigationView {
             ZStack {
@@ -37,9 +40,9 @@ struct BusinessDashboardView: View {
                         
                         // Stats
                         HStack(spacing: 12) {
-                            DashboardStatCard(value: "\(dataStore.offers.count)", label: "Нийт санал", icon: "gift.fill", color: "#7C3AED")
-                            DashboardStatCard(value: "\(dataStore.applications.count)", label: "Хүсэлт", icon: "person.fill.checkmark", color: "#EC4899")
-                            DashboardStatCard(value: "\(dataStore.applications.filter { $0.status == .completed }.count)", label: "Дууссан", icon: "checkmark.seal.fill", color: "#10B981")
+                            DashboardStatCard(value: "\(ownedOffers.count)", label: "Нийт санал", icon: "gift.fill", color: "#7C3AED")
+                            DashboardStatCard(value: "\(ownedApplications.count)", label: "Хүсэлт", icon: "person.fill.checkmark", color: "#EC4899")
+                            DashboardStatCard(value: "\(ownedApplications.filter { $0.status == .completed }.count)", label: "Дууссан", icon: "checkmark.seal.fill", color: "#10B981")
                         }
                         .padding(.horizontal, 20)
                         
@@ -50,11 +53,11 @@ struct BusinessDashboardView: View {
                                 .foregroundColor(.white)
                                 .padding(.horizontal, 20)
                             
-                            if dataStore.applications.isEmpty {
+                            if ownedApplications.isEmpty {
                                 EmptyStateView(icon: "person.fill.questionmark", message: "Одоогоор хүсэлт ирээгүй байна")
                                     .padding(.horizontal, 20)
                             } else {
-                                ForEach(dataStore.applications.prefix(5)) { app in
+                                ForEach(ownedApplications.prefix(5)) { app in
                                     ApplicationRowView(application: app)
                                         .padding(.horizontal, 20)
                                 }
@@ -68,7 +71,7 @@ struct BusinessDashboardView: View {
                                 .foregroundColor(.white)
                                 .padding(.horizontal, 20)
                             
-                            ForEach(dataStore.offers.prefix(3)) { offer in
+                            ForEach(ownedOffers.filter { $0.status == .active }.prefix(3)) { offer in
                                 NavigationLink(destination: OfferDetailView(offer: offer)) {
                                     OfferCardView(offer: offer)
                                         .padding(.horizontal, 20)
@@ -115,6 +118,7 @@ struct DashboardStatCard: View {
 // MARK: - Business Offers View
 struct BusinessOffersView: View {
     @EnvironmentObject var dataStore: DataStore
+    @EnvironmentObject var authManager: AuthManager
     
     var body: some View {
         NavigationView {
@@ -123,7 +127,7 @@ struct BusinessOffersView: View {
                 
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 16) {
-                        ForEach(dataStore.offers) { offer in
+                        ForEach(dataStore.offers(forBusiness: authManager.currentUser?.id)) { offer in
                             NavigationLink(destination: OfferDetailView(offer: offer)) {
                                 OfferCardView(offer: offer)
                             }
@@ -143,6 +147,7 @@ struct BusinessOffersView: View {
 // MARK: - Create Offer View
 struct CreateOfferView: View {
     @EnvironmentObject var dataStore: DataStore
+    @EnvironmentObject var authManager: AuthManager
     
     @State private var title = ""
     @State private var description = ""
@@ -282,7 +287,7 @@ struct CreateOfferView: View {
                                 .cornerRadius(16)
                         }
                         .padding(.horizontal, 20)
-                        .disabled(title.isEmpty || offerValue.isEmpty)
+                        .disabled(title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || offerValue.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || selectedContentTypes.isEmpty || deadline <= Date())
                         
                         Spacer(minLength: 100)
                     }
@@ -300,9 +305,10 @@ struct CreateOfferView: View {
     }
     
     func postOffer() {
+        guard let business = authManager.currentUser, business.role == .business else { return }
         let offer = Offer(
-            businessId: UUID(),
-            businessName: "Миний Бизнес",
+            businessId: business.id,
+            businessName: business.name,
             businessCategory: selectedCategory,
             title: title,
             description: description,
@@ -314,8 +320,7 @@ struct CreateOfferView: View {
             deadline: deadline,
             status: .active
         )
-        dataStore.addOffer(offer)
-        showSuccess = true
+        showSuccess = dataStore.addOffer(offer, business: business)
     }
     
     func clearForm() {
